@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -203,11 +203,30 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
+
+
+
         util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
+
+      gameState.getLegalActions(agentIndex):
+        Returns a list of legal actions for an agent
+        agentIndex=0 means Pacman, ghosts are >= 1
+
+      gameState.generateSuccessor(agentIndex, action):
+        Returns the successor game state after an agent takes an action
+
+      gameState.getNumAgents():
+        Returns the total number of agents in the game
+
+      gameState.isWin():
+        Returns whether or not the game state is a winning state
+
+      gameState.isLose():
+        Returns whether or not the game state is a losing state
     """
 
     def getAction(self, gameState):
@@ -215,7 +234,29 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        n_agents = gameState.getNumAgents()
+        states = []
+
+
+        print n_agents
+        for agent in range(0, n_agents):
+            # print agent
+            for action in gameState.getLegalActions():
+                # print action
+                test_state = gameState.generateSuccessor(agent, action)
+                if(test_state.isWin() or test_state.isLose()):
+                    evaluation = self.evaluationFunction(test_state)
+                    print "Eval:", evaluation
+                    if evaluation == 1.0:
+                        print "aCtIoN:", action
+                        states.append(action)
+                        # return action
+                print test_state
+        return states
+
+
+        # util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -244,4 +285,3 @@ def betterEvaluationFunction(currentGameState):
 
 # Abbreviation
 better = betterEvaluationFunction
-
