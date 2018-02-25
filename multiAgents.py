@@ -206,7 +206,69 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
 
 
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
+
+        level = 1
+        maxVal = -1 * sys.maxint
+
+        take = gameState.getLegalActions(self.index)[0]
+        for action in gameState.getLegalActions(self.index):
+            next = gameState.generateSuccessor(self.index, action)
+            cur = self.minValue(next, level)
+            if cur > maxVal:
+                maxVal = cur
+                take = action
+        return take
+
+    def maxValue(self, state, level):
+
+        num = state.getNumAgents()
+        if state.isWin() or state.isLose() :
+            return self.evaluationFunction(state)
+
+        val = -1 * sys.maxint  #-inf
+
+        if level == (num * self.depth):
+            return self.evaluationFunction(state)
+
+        level += 1
+
+        for action in state.getLegalActions(self.index):
+
+
+            next = state.generateSuccessor(self.index, action)
+
+            val = max(val, self.minValue(next, level))
+
+        return val
+
+
+    def minValue(self, state, level):
+
+        num = state.getNumAgents()
+        if state.isWin() or state.isLose() :
+            return self.evaluationFunction(state)
+
+        val = sys.maxint  # inf
+
+        if level == (num * self.depth):
+            return self.evaluationFunction(state)
+
+        level += 1
+
+
+        for action in state.getLegalActions(self.index):
+            next = state.generateSuccessor(self.index, action)
+
+            if level % num != 0:
+                val = min(val, self.minValue(next, level))
+            else:
+                val = min(val, self.maxValue(next, level))
+
+
+        return val
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
