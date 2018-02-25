@@ -574,6 +574,7 @@ def matrixAsList( matrix, value = True ):
     return cells
 
 def lookup(name, namespace):
+    # type: (object, object) -> object
     """
     Get a method or class from any imported module from its name.
     Usage: lookup(functionName, globals())
