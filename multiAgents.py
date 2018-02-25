@@ -297,107 +297,182 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        def max_value(state, alpha, beta, agent, d):
-            if state.isWin() or state.isLose():
-                print "hit1"
-                return self.evaluationFunction(state)
+        # def max_value(state, alpha, beta, agent, d):
+        #     if state.isWin() or state.isLose():
+        #         print "hit1"
+        #         return self.evaluationFunction(state)
+        #
+        #     v = -1 * sys.maxint
+        #
+        #     for action in state.getLegalActions(agent):
+        #         succ = state.generateSuccessor(agent, action)
+        #         tempVal = 0
+        #         print "max, depth",d
+        #         print "max, agent",agent
+        #         if agent >= succ.getNumAgents():
+        #             #goto next depth
+        #             print "max, next depth"
+        #             agent = 0
+        #             d += 1
+        #             if d == self.depth:
+        #                 print "hit2"
+        #                 return self.evaluationFunction(succ)
+        #
+        #             if agent == self.index:
+        #                 tempVal = max_value(succ, alpha, beta, agent + 1, d)
+        #             else:
+        #                 tempVal = min_value(succ, alpha, beta, agent + 1, d)
+        #
+        #         else:
+        #             if d == self.depth:
+        #                 print "hit3"
+        #                 return self.evaluationFunction(succ)
+        #
+        #             if agent == self.index:
+        #                 tempVal = max_value(succ, alpha, beta, agent + 1, d)
+        #             else:
+        #                 tempVal = min_value(succ, alpha, beta, agent + 1, d)
+        #
+        #         if tempVal > v:
+        #             v = tempVal
+        #
+        #         if v > beta:
+        #             print "hit4"
+        #             return v
+        #
+        #         alpha = max(alpha, v)
+        #
+        #         print "hit5"
+        #         return v
+        #
+        # def min_value(state, alpha, beta, agent, d):
+        #     if state.isWin() or state.isLose():
+        #         print "hit6"
+        #         return self.evaluationFunction(state)
+        #
+        #     v = -1 * sys.maxint
+        #
+        #     for action in state.getLegalActions(agent):
+        #         succ = state.generateSuccessor(agent, action)
+        #         tempVal = 0
+        #         print "min, depth",d
+        #         print "min, agent",agent
+        #         if agent >= succ.getNumAgents():
+        #             #goto next depth
+        #             print "min, next depth"
+        #             agent = 0
+        #             d += 1
+        #             if d == self.depth:
+        #                 print "hit7"
+        #                 return self.evaluationFunction(succ)
+        #
+        #             if agent == self.index:
+        #                 tempVal = max_value(succ, alpha, beta, agent + 1, d)
+        #             else:
+        #                 tempVal = min_value(succ, alpha, beta, agent + 1, d)
+        #
+        #         else:
+        #             if d == self.depth:
+        #                 print "hit8"
+        #                 return self.evaluationFunction(succ)
+        #
+        #             if agent == self.index:
+        #                 tempVal = max_value(succ, alpha, beta, agent + 1, d)
+        #             else:
+        #                 tempVal = min_value(succ, alpha, beta, agent + 1, d)
+        #
+        #         if tempVal < v:
+        #             v = tempVal
+        #
+        #         if v < alpha:
+        #             print "hit9"
+        #             return v
+        #
+        #         beta = min(beta, v)
+        #
+        #         print "hit10"
+        #         return v
+        #
+        #
+        # #start with agent 0, depth 0
+        # a = -1 * sys.maxint
+        # b = sys.maxint
+        # return max_value(gameState, a, b, 0, 0)
 
-            v = -1 * sys.maxint
 
-            for action in state.getLegalActions(agent):
-                succ = state.generateSuccessor(agent, action)
-                tempVal = 0
-                print "max, depth",d
-                print "max, agent",agent
-                if agent >= succ.getNumAgents():
-                    #goto next depth
-                    print "max, next depth"
-                    agent = 0
-                    d += 1
-                    if d == self.depth:
-                        print "hit2"
-                        return self.evaluationFunction(succ)
+        level = 1
+        maxVal = -1 * sys.maxint
 
-                    if agent == self.index:
-                        tempVal = max_value(succ, alpha, beta, agent + 1, d)
-                    else:
-                        tempVal = min_value(succ, alpha, beta, agent + 1, d)
+        alpha = -1 * sys.maxint
+        beta = sys.maxint
 
-                else:
-                    if d == self.depth:
-                        print "hit3"
-                        return self.evaluationFunction(succ)
+        take = gameState.getLegalActions(self.index)[0]
+        for action in gameState.getLegalActions(self.index):
+            next = gameState.generateSuccessor(self.index, action)
+            cur = self.minValue(next, level, alpha, beta)
+            if cur > maxVal:
+                maxVal = cur
+                take = action
+        return take
 
-                    if agent == self.index:
-                        tempVal = max_value(succ, alpha, beta, agent + 1, d)
-                    else:
-                        tempVal = min_value(succ, alpha, beta, agent + 1, d)
+    def maxValue(self, state, level, alpha, beta):
 
-                if tempVal > v:
-                    v = tempVal
+        num = state.getNumAgents()
+        if state.isWin() or state.isLose() :
+            return self.evaluationFunction(state)
 
-                if v > beta:
-                    print "hit4"
-                    return v
+        val = -1 * sys.maxint  #-inf
 
-                alpha = max(alpha, v)
+        if level == (num * self.depth):
+            return self.evaluationFunction(state)
 
-                print "hit5"
-                return v
+        level += 1
 
-        def min_value(state, alpha, beta, agent, d):
-            if state.isWin() or state.isLose():
-                print "hit6"
-                return self.evaluationFunction(state)
-
-            v = -1 * sys.maxint
-
-            for action in state.getLegalActions(agent):
-                succ = state.generateSuccessor(agent, action)
-                tempVal = 0
-                print "min, depth",d
-                print "min, agent",agent
-                if agent >= succ.getNumAgents():
-                    #goto next depth
-                    print "min, next depth"
-                    agent = 0
-                    d += 1
-                    if d == self.depth:
-                        print "hit7"
-                        return self.evaluationFunction(succ)
-
-                    if agent == self.index:
-                        tempVal = max_value(succ, alpha, beta, agent + 1, d)
-                    else:
-                        tempVal = min_value(succ, alpha, beta, agent + 1, d)
-
-                else:
-                    if d == self.depth:
-                        print "hit8"
-                        return self.evaluationFunction(succ)
-
-                    if agent == self.index:
-                        tempVal = max_value(succ, alpha, beta, agent + 1, d)
-                    else:
-                        tempVal = min_value(succ, alpha, beta, agent + 1, d)
-
-                if tempVal < v:
-                    v = tempVal
-
-                if v < alpha:
-                    print "hit9"
-                    return v
-
-                beta = min(beta, v)
-
-                print "hit10"
-                return v
+        for action in state.getLegalActions(self.index):
 
 
-        #start with agent 0, depth 0
-        a = -1 * sys.maxint
-        b = sys.maxint
-        return max_value(gameState, a, b, 0, 0)
+            next = state.generateSuccessor(self.index, action)
+
+            val = max(val, self.minValue(next, level, alpha, beta))
+
+            if val > beta:
+                return val
+
+            alpha = max(alpha, val)
+
+        return val
+
+
+    def minValue(self, state, level, alpha, beta):
+
+        num = state.getNumAgents()
+        if state.isWin() or state.isLose() :
+            return self.evaluationFunction(state)
+
+        val = sys.maxint  # inf
+
+        if level == (num * self.depth):
+            return self.evaluationFunction(state)
+
+        level += 1
+
+
+        for action in state.getLegalActions(self.index):
+            next = state.generateSuccessor(self.index, action)
+
+            if level % num != 0:
+                val = min(val, self.minValue(next, level, alpha, beta))
+            else:
+                val = min(val, self.maxValue(next, level, alpha, beta))
+
+            if val < alpha:
+                return val
+
+            beta = min(beta, val)
+
+        return val
+
+
 
         # util.raiseNotDefined()
 
