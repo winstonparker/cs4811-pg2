@@ -351,8 +351,63 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           All ghosts should be modeled as choosing uniformly at random from their
           legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # print  gameState.__dict__["data"].__dict__.keys()
+        level = 1
+        maxVal = -1 * sys.maxint
+
+        take = gameState.getLegalActions(self.index)[0]
+        for action in gameState.getLegalActions(self.index):
+            next = gameState.generateSuccessor(self.index, action)
+            cur = self.minValue(next, level)
+            if cur > maxVal:
+                maxVal = cur
+                take = action
+        return take
+
+    def maxValue(self, state, level):
+
+        num = state.getNumAgents()
+        if state.isWin() or state.isLose():
+            return self.evaluationFunction(state)
+
+        val = -1 * sys.maxint  # -inf
+
+        if level == (num * self.depth):
+            return self.evaluationFunction(state)
+
+        level += 1
+
+        for action in state.getLegalActions(self.index):
+            next = state.generateSuccessor(self.index, action)
+
+            val = max(val, self.minValue(next, level))
+
+        return val
+
+    def minValue(self, state, level):
+
+        num = state.getNumAgents()
+        if state.isWin() or state.isLose():
+            return self.evaluationFunction(state)
+
+        val = 0.0
+
+        if level == (num * self.depth):
+            return self.evaluationFunction(state)
+
+        level += 1
+
+        for action in state.getLegalActions(self.index):
+            next = state.generateSuccessor(self.index, action)
+
+            if level % num != 0:
+                val = (val + self.minValue(next, level)) / 1.0
+            else:
+                val = (val + self.maxValue(next, level)) / 1.0
+
+        return val
+
+
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -361,8 +416,62 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
+    # Useful information you can extract from a GameState (pacman.py)
+    successorGameState = currentGameState
+    newPos = successorGameState.getPacmanPosition()
+    newFood = successorGameState.getFood()
+    newGhostStates = successorGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+
+    total = successorGameState.getScore()
+    x, y = newPos
+
+    if newFood[x][y]:
+        total += 200
+    else:
+        smallest = 1000;
+        for i, each in enumerate(newFood.asList()):
+            mDist = abs(x - each[0]) + abs(y - each[1])
+            if mDist <= smallest:
+                smallest = mDist
+        # print "small: ", smallest,
+        if (smallest > 1):
+            total += 10 / (smallest)
+        else:
+            total += 95
+    total += random.randint(20, 40);
+
+    for i, each in enumerate(newGhostStates):
+        gX, gY = newGhostStates[i].__dict__["configuration"].__dict__["pos"]
+
+        mDist = abs(x - gX) + abs(y - gY)
+        if newScaredTimes[i] < mDist + 5:
+            if mDist < 2:
+                return int(-50000)
+            elif mDist < 3:
+                total = (-2000 / (mDist))
+
+
+        else:
+            total += 410
+
+    for each in currentGameState.__dict__["data"].__dict__["capsules"]:
+        smallest = 1000;
+        for i, each in enumerate(newFood.asList()):
+            mDist = abs(x - each[0]) + abs(y - each[1])
+            if mDist <= smallest:
+                smallest = mDist
+        # print "small: ", smallest,
+        if (smallest > 1):
+            total += 10 / (smallest)
+        else:
+            total += 100
+
+    return total
+
 
 # Abbreviation
 better = betterEvaluationFunction
