@@ -235,26 +235,37 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        n_agents = gameState.getNumAgents()
-        states = []
+        print Directions.STOP
 
 
-        print n_agents
-        for agent in range(0, n_agents):
-            # print agent
-            for action in gameState.getLegalActions():
-                # print action
-                test_state = gameState.generateSuccessor(agent, action)
-                if(test_state.isWin() or test_state.isLose()):
-                    evaluation = self.evaluationFunction(test_state)
-                    print "Eval:", evaluation
-                    if evaluation == 1.0:
-                        print "aCtIoN:", action
-                        states.append(action)
-                        # return action
-                print test_state
-        return states
+        def max_value(state, alpha, beta, agent):
+            if state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+            v = float("-inf")
+            successors = []
+            for action in state.getLegalActions(agent):
+                successors.append(state.getSuccessor(agent, action))
+            for suc in successors:
+                v = max(v, min_value(suc, alpha, beta))
+                if v > beta:
+                    return v
+                alpha = max(alpha, v)
+            return v
 
+
+        def min_value(state, self, alpha, beta):
+            if state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+            v = float("inf")
+            successors = []
+            for action in state.getLegalActions(agent):
+                successors.append(state.getSuccessor(agent, action))
+            for suc in successors:
+                v = min(v, max_value(suc, alpha, beta))
+                if v < alpha:
+                    return v
+                beta = min(beta, v)
+            return v
 
         # util.raiseNotDefined()
 
