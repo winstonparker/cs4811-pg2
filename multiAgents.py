@@ -10,7 +10,7 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-import sys
+
 
 from util import manhattanDistance
 from game import Directions
@@ -66,9 +66,7 @@ class ReflexAgent(Agent):
         Print out these variables to see what you're getting, then combine them
         to create a masterful evaluation function.
         """
-        util.raiseNotDefined()
-
-        #Useful information you can extract from a GameState (pacman.py)
+        # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
@@ -79,8 +77,11 @@ class ReflexAgent(Agent):
             return -10;
 
         total = successorGameState.getScore()
+        # print "start:", total,
         x, y = newPos
-
+        curX, curY  = currentGameState.__dict__["data"].__dict__["agentStates"][0].__dict__["configuration"].__dict__ ["pos"]
+        # print curX, curY
+        # print total,
 
         if newFood[x][y]:
             total += 200
@@ -97,8 +98,10 @@ class ReflexAgent(Agent):
                 total += 95
         total += random.randint(20, 40);
 
+            # print "after path:", total,
 
 
+        # print(newGhostStates[0].__dict__["configuration"].__dict__ .keys())
         for i, each in enumerate(newGhostStates):
             gX, gY  = newGhostStates[i].__dict__["configuration"].__dict__ ["pos"]
 
@@ -106,9 +109,13 @@ class ReflexAgent(Agent):
             if newScaredTimes[i] < mDist + 5:
                 if mDist < 2:
                     return int(-50000)
-                elif mDist < 3:
-                    total = ( -2000 / ( mDist))
 
+                elif mDist < 3:
+                    # print ("factoring ghost")
+
+                    total = ( -2000 / ( mDist))
+                # else:
+                    # print ("not factoring ghost")
 
             else:
                 total += 410
@@ -126,8 +133,10 @@ class ReflexAgent(Agent):
                 total += 100
 
 
-        return total
+        # print "final: ", total
+        return int(total)
 
+        # return successorGameState.getScore
 
 
 
@@ -164,7 +173,6 @@ class MultiAgentSearchAgent(Agent):
         self.index = 0 # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
-        self.calls = 0;
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
@@ -194,77 +202,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.isLose():
             Returns whether or not the game state is a losing state
         """
-<<<<<<< HEAD
         "*** YOUR CODE HERE ***"
 
 
 
-=======
->>>>>>> 44673cb6ab9178aba204662f7f6d24723eda056e
         util.raiseNotDefined()
-
-        level = 1
-        maxVal = -1 * sys.maxint
-
-        take = gameState.getLegalActions(self.index)[0]
-        for action in gameState.getLegalActions(self.index):
-            next = gameState.generateSuccessor(self.index, action)
-            cur = self.minValue(next, level)
-            if cur > maxVal:
-                maxVal = cur
-                take = action
-        return take
-
-    def maxValue(self, state, level):
-
-        num = state.getNumAgents()
-        if state.isWin() or state.isLose() :
-            return self.evaluationFunction(state)
-
-        val = -1 * sys.maxint  #-inf
-
-        if level == (num * self.depth):
-            return self.evaluationFunction(state)
-
-        level += 1
-
-        for action in state.getLegalActions(self.index):
-
-
-            next = state.generateSuccessor(self.index, action)
-
-            val = max(val, self.minValue(next, level))
-
-        return val
-
-
-    def minValue(self, state, level):
-
-        num = state.getNumAgents()
-        if state.isWin() or state.isLose() :
-            return self.evaluationFunction(state)
-
-        val = sys.maxint  # inf
-
-        if level == (num * self.depth):
-            return self.evaluationFunction(state)
-
-        level += 1
-
-
-        for action in state.getLegalActions(self.index):
-            next = state.generateSuccessor(self.index, action)
-
-            if level % num != 0:
-                val = min(val, self.minValue(next, level))
-            else:
-                val = min(val, self.maxValue(next, level))
-
-
-        return val
-
-
-
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -292,8 +234,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-
-        print Directions.STOP
 
 
         def max_value(state, alpha, beta, agent):
@@ -325,6 +265,10 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 beta = min(beta, v)
             return v
 
+
+        agent = 0
+
+
         # util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -349,8 +293,8 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
-    
-
+    "*** YOUR CODE HERE ***"
+    util.raiseNotDefined()
 
 # Abbreviation
 better = betterEvaluationFunction
