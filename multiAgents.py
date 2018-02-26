@@ -226,9 +226,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
             #get current pos
             pos = (0, 0)
+
             if hasattr(next, 'getPacmanPosition'):
                 pos = next.getPacmanPosition()
-
+                if pos in next.getGhostPositions():
+                    continue;
             #penalty for bad move
             penalty = 0.0
             if action == "Stop":
@@ -236,13 +238,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
             if pos in self.seak:
                 penalty = -1000.0
 
-            if hasattr(next, 'getPacmanPosition') and pos in next.getFood().asList():
-                penalty -= 100;
-
+            if hasattr(next, 'getPacmanPosition') and pos in gameState.getFood().asList():
+                penalty -= 100.11;
             if hasattr(next, 'getPacmanPosition') and pos in gameState.getCapsules():
-                print "cap"
-                penalty -= 100000.2;
-
+                penalty -= 1000.2;
+            if hasattr(next, 'getPacmanPosition') and pos not in gameState.getFood().asList():
+                penalty += 0.8;
             cur = self.minValue(next, level) - penalty
             print "top", action, cur
             if cur > maxVal:
@@ -276,6 +277,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 penalty = 1.0
             if hasattr(next, 'getPacmanPosition'):
                 pos = next.getPacmanPosition()
+
             if pos in self.nogo:
                 penalty = 999999.0
 
@@ -321,15 +323,15 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 penalty = 0
                 if action == "Stop":
                     penalty = 10
-                if pos in self.seak:
-                    penalty = -1000.332
+
                 if hasattr(next, 'getPacmanPosition') and pos in state.getFood().asList():
                     penalty -= 10.2;
+                if hasattr(next, 'getPacmanPosition') and pos not in state.getFood().asList():
+                    penalty += 0.8;
                 if pos in self.nogo:
                     penalty = 999999.0
-
-
-
+                # if pos in self.seak:
+                #     penalty = -1000.332
 
                 n = self.maxValue(next, level) + penalty
                 val = min(val, n)
