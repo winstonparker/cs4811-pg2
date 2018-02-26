@@ -130,6 +130,7 @@ def parseTreeProblem(testDict):
 
 
 def run(lay, layName, pac, ghosts, disp, nGames=1, name='games'):
+    # type: (object, object, object, object, object, object, object) -> object
     """
     Runs a few games and outputs their statistics.
     """
@@ -177,10 +178,12 @@ class GradingAgent(Agent):
             if studentAction[0] in optimalActions[i][0]:
                 studentOptimalAction = True
             else:
+                print studentAction[0], optimalActions[i][0], "------------------------------------------------"
                 self.actionsConsistentWithOptimal[i] = False
             if studentAction[1] == int(optimalActions[i][1]):
                 curRightStatesExplored = True
         if not curRightStatesExplored and self.wrongStatesExplored < 0:
+
             self.wrongStatesExplored = 1
         for i in range(len(altDepthActions)):
             if studentAction[0] not in altDepthActions[i]:
@@ -311,6 +314,7 @@ class PacmanGameTreeTest(testClasses.TestCase):
         # check return codes and assign grades
         disp = self.question.getDisplay()
         stats = run(lay, self.layout_name, pac, [DirectionalGhost(i + 1) for i in range(2)], disp, name=self.alg)
+        print pac.__dict__.keys()
         if stats['timeouts'] > 0:
             self.addMessage('Agent timed out on smallClassic.  No credit')
             return self.testFail(grades)
@@ -322,6 +326,7 @@ class PacmanGameTreeTest(testClasses.TestCase):
             return self.testPass(grades)
         elif code == -3:
             if pac.getWrongStatesExplored() >=0:
+                print pac.getWrongStatesExplored()
                 self.addMessage('Bug: Wrong number of states expanded.')
                 return self.testFail(grades)
             else:

@@ -130,11 +130,6 @@ class ReflexAgent(Agent):
 
 
 
-
-
-
-
-
 def scoreEvaluationFunction(currentGameState):
     """
       This default evaluation function just returns the score of the state.
@@ -165,7 +160,9 @@ class MultiAgentSearchAgent(Agent):
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
         self.calls = 0;
-
+        self.nogo = []
+        self.seak = []
+        self.walls = []
 class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
@@ -194,39 +191,83 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.isLose():
             Returns whether or not the game state is a losing state
         """
-        util.raiseNotDefined()
 
         level = 1
-        maxVal = -1 * sys.maxint
+        maxVal = -1 * 999999.0
+        take = gameState.getLegalActions(self.index)[-1]
 
-        take = gameState.getLegalActions(self.index)[0]
+        for i in range (1, gameState.getNumAgents() - 1):
+            for action in gameState.getLegalActions(i):
+                next = gameState.generateSuccessor(i, action)
+                if hasattr(next, 'getGhostPositions'):
+                    newGhostStates = next.getGhostStates()
+                    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+                    pos = next.getGhostPositions()[i]
+                    if newScaredTimes[i] == 0:
+                        self.nogo.append(pos)
+                    else:
+                        self.seak.append(pos)
+
         for action in gameState.getLegalActions(self.index):
             next = gameState.generateSuccessor(self.index, action)
-            cur = self.minValue(next, level)
+
+            #get current pos
+            pos = (0, 0)
+            if hasattr(next, 'getPacmanPosition'):
+                pos = next.getPacmanPosition()
+
+            #penalty for bad move
+            penalty = 0.0
+            if action == "Stop":
+                penalty = 9999999.0
+            if pos in self.seak:
+                penalty = -1000.0
+
+            if hasattr(next, 'getPacmanPosition') and pos in next.getFood().asList():
+                penalty -= 100;
+
+            if hasattr(next, 'getPacmanPosition') and pos in gameState.getCapsules():
+                print "cap"
+                penalty -= 100000.2;
+
+            cur = self.minValue(next, level) - penalty
+            print "top", action, cur
             if cur > maxVal:
                 maxVal = cur
                 take = action
+
         return take
 
     def maxValue(self, state, level):
 
         num = state.getNumAgents()
-        if state.isWin() or state.isLose() :
+
+        if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
-        val = -1 * sys.maxint  #-inf
+        val = -1 * 999999999.0  #-inf
 
         if level == (num * self.depth):
             return self.evaluationFunction(state)
 
         level += 1
 
+
         for action in state.getLegalActions(self.index):
-
-
             next = state.generateSuccessor(self.index, action)
 
-            val = max(val, self.minValue(next, level))
+            #penalty for bad move
+            penalty = 0.0
+            pos = (0, 0)
+            if action == "Stop":
+                penalty = 1.0
+            if hasattr(next, 'getPacmanPosition'):
+                pos = next.getPacmanPosition()
+            if pos in self.nogo:
+                penalty = 999999.0
+
+            n = self.minValue(next, level) - penalty
+            val = max(val, n )
 
         return val
 
@@ -234,25 +275,49 @@ class MinimaxAgent(MultiAgentSearchAgent):
     def minValue(self, state, level):
 
         num = state.getNumAgents()
-        if state.isWin() or state.isLose() :
+
+        if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
-        val = sys.maxint  # inf
+
+        val = 999999999.0  # inf
 
         if level == (num * self.depth):
             return self.evaluationFunction(state)
 
         level += 1
 
-
         for action in state.getLegalActions(self.index):
             next = state.generateSuccessor(self.index, action)
 
-            if level % num != 0:
-                val = min(val, self.minValue(next, level))
-            else:
-                val = min(val, self.maxValue(next, level))
 
+
+            if level % num != 0:
+
+                val = min(val, self.minValue(next, level))
+
+            else:
+                # get current pos
+                pos = (0, 0)
+                if hasattr(next, 'getPacmanPosition'):
+                    pos = next.getPacmanPosition()
+
+                #penalty for bad move
+                penalty = 0
+                if action == "Stop":
+                    penalty = 10
+                if pos in self.seak:
+                    penalty = -1000.332
+                if hasattr(next, 'getPacmanPosition') and pos in state.getFood().asList():
+                    penalty -= 10.2;
+                if pos in self.nogo:
+                    penalty = 999999.0
+
+
+
+
+                n = self.maxValue(next, level) + penalty
+                val = min(val, n)
 
         return val
 
@@ -283,6 +348,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           All ghosts should be modeled as choosing uniformly at random from their
           legal moves.
         """
+        util.raiseNotDefined()
+
         # print  gameState.__dict__["data"].__dict__.keys()
         level = 1
         maxVal = -1 * sys.maxint
@@ -290,7 +357,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         take = gameState.getLegalActions(self.index)[0]
         for action in gameState.getLegalActions(self.index):
             next = gameState.generateSuccessor(self.index, action)
-            cur = self.minValue(next, level)
+            cur = self.avgValue(next, level)
             if cur > maxVal:
                 maxVal = cur
                 take = action
@@ -312,11 +379,11 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         for action in state.getLegalActions(self.index):
             next = state.generateSuccessor(self.index, action)
 
-            val = max(val, self.minValue(next, level))
+            val = max(val, self.avgValue(next, level))
 
         return val
 
-    def minValue(self, state, level):
+    def avgValue(self, state, level):
 
         num = state.getNumAgents()
         if state.isWin() or state.isLose():
@@ -333,7 +400,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             next = state.generateSuccessor(self.index, action)
 
             if level % num != 0:
-                val = (val + self.minValue(next, level)) / 1.0
+                val = (val + self.avgValue(next, level)) / 1.0
             else:
                 val = (val + self.maxValue(next, level)) / 1.0
 
