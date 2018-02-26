@@ -169,9 +169,7 @@ class MultiAgentSearchAgent(Agent):
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
         self.calls = 0;
-        self.nogo = []
-        self.seak = []
-        self.walls = []
+        self.cur = 0;
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
@@ -204,140 +202,76 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         "*** YOUR CODE HERE ***"
 
-
         level = 1
-        maxVal = -1 * 999999.0
-        take = gameState.getLegalActions(self.index)[-1]
+        maxVal = -1 * sys.maxint
 
-        for i in range (1, gameState.getNumAgents() - 1):
-            for action in gameState.getLegalActions(i):
-                next = gameState.generateSuccessor(i, action)
-                if hasattr(next, 'getGhostPositions'):
-                    newGhostStates = next.getGhostStates()
-                    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-                    pos = next.getGhostPositions()[i]
-                    if newScaredTimes[i] == 0:
-                        self.nogo.append(pos)
-                    else:
-                        self.seak.append(pos)
-
+        take = gameState.getLegalActions(self.index)[0]
         for action in gameState.getLegalActions(self.index):
-            next = gameState.generateSuccessor(self.index, action)
 
-            #get current pos
-            pos = (0, 0)
+            next = gameState.generateSuccessor(0, action)
+            if gameState.getNumAgents() > 1:
+                self.cur = 1
+            else:
+                self.cur = 0
 
-            if hasattr(next, 'getPacmanPosition'):
-                pos = next.getPacmanPosition()
-                if pos in next.getGhostPositions():
-                    continue;
-            #penalty for bad move
-            penalty = 0.0
+            cur = self.minValue(next, level)
             if action == "Stop":
-                penalty = 9999999.0
-            if pos in self.seak:
-                penalty = -1000.0
-
-            if hasattr(next, 'getPacmanPosition') and pos in gameState.getFood().asList():
-                penalty -= 100.11;
-            if hasattr(next, 'getPacmanPosition') and pos in gameState.getCapsules():
-                penalty -= 1000.2;
-            if hasattr(next, 'getPacmanPosition') and pos not in gameState.getFood().asList():
-                penalty += 0.8;
-            cur = self.minValue(next, level) - penalty
-            print "top", action, cur
+                cur -= 1
             if cur > maxVal:
                 maxVal = cur
                 take = action
-
         return take
 
     def maxValue(self, state, level):
 
         num = state.getNumAgents()
-
         if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
-        val = -1 * 999999999.0  #-inf
+        val = -1 * sys.maxint  # -inf
 
         if level == (num * self.depth):
             return self.evaluationFunction(state)
 
         level += 1
 
-
-        for action in state.getLegalActions(self.index):
-            next = state.generateSuccessor(self.index, action)
-
-            #penalty for bad move
-            penalty = 0.0
-            pos = (0, 0)
-            if action == "Stop":
-                penalty = 1.0
-            if hasattr(next, 'getPacmanPosition'):
-                pos = next.getPacmanPosition()
-
-            if pos in self.nogo:
-                penalty = 999999.0
-
-            n = self.minValue(next, level) - penalty
-            val = max(val, n )
+        temp = self.cur
+        for action in state.getLegalActions(temp):
+            next = state.generateSuccessor(temp, action)
+            if state.getNumAgents() > 1:
+                self.cur = 1
+            else:
+                self.cur = 0
+            val = max(val, self.minValue(next, level))
 
         return val
 
-
     def minValue(self, state, level):
-
         num = state.getNumAgents()
 
         if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
-
-        val = 999999999.0  # inf
+        val = sys.maxint  # inf
 
         if level == (num * self.depth):
-            # print "min depth reached"
             return self.evaluationFunction(state)
 
-        # print "min level", level
         level += 1
 
-        for action in state.getLegalActions(self.index):
-            next = state.generateSuccessor(self.index, action)
+        temp = self.cur
+        for action in state.getLegalActions(temp):
 
-
+            next = state.generateSuccessor(temp, action)
 
             if level % num != 0:
-
+                self.cur = level % num
                 val = min(val, self.minValue(next, level))
-
             else:
-                # get current pos
-                pos = (0, 0)
-                if hasattr(next, 'getPacmanPosition'):
-                    pos = next.getPacmanPosition()
-
-                #penalty for bad move
-                penalty = 0
-                if action == "Stop":
-                    penalty = 10
-
-                if hasattr(next, 'getPacmanPosition') and pos in state.getFood().asList():
-                    penalty -= 10.2;
-                if hasattr(next, 'getPacmanPosition') and pos not in state.getFood().asList():
-                    penalty += 0.8;
-                if pos in self.nogo:
-                    penalty = 999999.0
-                # if pos in self.seak:
-                #     penalty = -1000.332
-
-                n = self.maxValue(next, level) + penalty
-                val = min(val, n)
+                self.cur = 0;
+                val = min(val, self.maxValue(next, level))
 
         return val
-
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
