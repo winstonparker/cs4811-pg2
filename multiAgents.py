@@ -300,6 +300,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+        util.raiseNotDefined()
 
         level = 1
         maxVal = -1 * sys.maxint
@@ -389,16 +390,21 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           All ghosts should be modeled as choosing uniformly at random from their
           legal moves.
         """
-        util.raiseNotDefined()
-
-        # print  gameState.__dict__["data"].__dict__.keys()
         level = 1
         maxVal = -1 * sys.maxint
 
         take = gameState.getLegalActions(self.index)[0]
         for action in gameState.getLegalActions(self.index):
-            next = gameState.generateSuccessor(self.index, action)
+
+            next = gameState.generateSuccessor(0, action)
+            if gameState.getNumAgents() > 1:
+                self.cur = 1
+            else:
+                self.cur = 0
+
             cur = self.avgValue(next, level)
+            if action == "Stop":
+                cur -= 100
             if cur > maxVal:
                 maxVal = cur
                 take = action
@@ -417,37 +423,42 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         level += 1
 
-        for action in state.getLegalActions(self.index):
-            next = state.generateSuccessor(self.index, action)
-
+        temp = self.cur
+        for action in state.getLegalActions(temp):
+            next = state.generateSuccessor(temp, action)
+            if state.getNumAgents() > 1:
+                self.cur = 1
+            else:
+                self.cur = 0
             val = max(val, self.avgValue(next, level))
 
         return val
 
     def avgValue(self, state, level):
-
         num = state.getNumAgents()
+
         if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
-
-        val = 0.0
 
         if level == (num * self.depth):
             return self.evaluationFunction(state)
 
         level += 1
 
-        for action in state.getLegalActions(self.index):
-            next = state.generateSuccessor(self.index, action)
+        temp = self.cur
+        vals = []
+        for action in state.getLegalActions(temp):
+
+            next = state.generateSuccessor(temp, action)
 
             if level % num != 0:
-                val = (val + self.avgValue(next, level)) / 1.0
+                self.cur = level % num
+                vals.append(self.avgValue(next, level))
             else:
-                val = (val + self.maxValue(next, level)) / 1.0
+                self.cur = 0;
+                vals.append(self.maxValue(next, level))
 
-        return val
-
-
+        return sum(vals) / float(len(vals))
 
 def betterEvaluationFunction(currentGameState):
     """
