@@ -301,6 +301,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
+
         level = 1
         maxVal = -1 * sys.maxint
 
@@ -309,9 +310,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         take = gameState.getLegalActions(self.index)[0]
         for action in gameState.getLegalActions(self.index):
-            next = gameState.generateSuccessor(self.index, action)
+
+            next = gameState.generateSuccessor(0, action)
+            if gameState.getNumAgents() > 1:
+                self.cur = 1
+            else:
+                self.cur = 0
 
             cur = self.minValue(next, level, alpha, beta)
+            if action == "Stop":
+                cur -= 1
             if cur > maxVal:
                 maxVal = cur
                 alpha = cur
@@ -321,20 +329,23 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     def maxValue(self, state, level, alpha, beta):
 
         num = state.getNumAgents()
-        if state.isWin() or state.isLose() :
+        if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
-        val = -1 * sys.maxint  #-inf
+        val = -1 * sys.maxint  # -inf
 
         if level == (num * self.depth):
             return self.evaluationFunction(state)
 
         level += 1
 
-        for action in state.getLegalActions(self.index):
-
-            next = state.generateSuccessor(self.index, action)
-
+        temp = self.cur
+        for action in state.getLegalActions(temp):
+            next = state.generateSuccessor(temp, action)
+            if state.getNumAgents() > 1:
+                self.cur = 1
+            else:
+                self.cur = 0
             val = max(val, self.minValue(next, level, alpha, beta))
 
             if val > beta:
@@ -344,11 +355,10 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         return val
 
-
     def minValue(self, state, level, alpha, beta):
-
         num = state.getNumAgents()
-        if state.isWin() or state.isLose() :
+
+        if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
         val = sys.maxint  # inf
@@ -358,12 +368,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         level += 1
 
+        temp = self.cur
+        for action in state.getLegalActions(temp):
 
-        for action in state.getLegalActions(self.index):
-            next = state.generateSuccessor(self.index, action)
+            next = state.generateSuccessor(temp, action)
+
             if level % num != 0:
+                self.cur = level % num
                 val = min(val, self.minValue(next, level, alpha, beta))
             else:
+                self.cur = 0;
                 val = min(val, self.maxValue(next, level, alpha, beta))
 
             if val < alpha:
@@ -371,7 +385,80 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
             beta = min(beta, val)
 
+
         return val
+
+    #     level = 1
+    #     maxVal = -1 * sys.maxint
+    #
+    #     alpha = -1 * sys.maxint
+    #     beta = sys.maxint
+    #
+    #     take = gameState.getLegalActions(self.index)[0]
+    #     for action in gameState.getLegalActions(self.index):
+    #         next = gameState.generateSuccessor(self.index, action)
+    #
+    #         cur = self.minValue(next, level, alpha, beta)
+    #         if cur > maxVal:
+    #             maxVal = cur
+    #             alpha = cur
+    #             take = action
+    #     return take
+    #
+    # def maxValue(self, state, level, alpha, beta):
+    #
+    #     num = state.getNumAgents()
+    #     if state.isWin() or state.isLose() :
+    #         return self.evaluationFunction(state)
+    #
+    #     val = -1 * sys.maxint  #-inf
+    #
+    #     if level == (num * self.depth):
+    #         return self.evaluationFunction(state)
+    #
+    #     level += 1
+    #
+    #     for action in state.getLegalActions(self.index):
+    #
+    #         next = state.generateSuccessor(self.index, action)
+    #
+    #         val = max(val, self.minValue(next, level, alpha, beta))
+    #
+    #         if val > beta:
+    #             return val
+    #
+    #         alpha = max(alpha, val)
+    #
+    #     return val
+    #
+    #
+    # def minValue(self, state, level, alpha, beta):
+    #
+    #     num = state.getNumAgents()
+    #     if state.isWin() or state.isLose() :
+    #         return self.evaluationFunction(state)
+    #
+    #     val = sys.maxint  # inf
+    #
+    #     if level == (num * self.depth):
+    #         return self.evaluationFunction(state)
+    #
+    #     level += 1
+    #
+    #
+    #     for action in state.getLegalActions(self.index):
+    #         next = state.generateSuccessor(self.index, action)
+    #         if level % num != 0:
+    #             val = min(val, self.minValue(next, level, alpha, beta))
+    #         else:
+    #             val = min(val, self.maxValue(next, level, alpha, beta))
+    #
+            # if val < alpha:
+            #     return val
+            #
+            # beta = min(beta, val)
+    #
+    #     return val
 
 
 
