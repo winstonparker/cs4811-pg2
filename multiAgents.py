@@ -74,40 +74,50 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
+        #stop action is not optimal so we try to avoid it
         if action == "Stop":
             return -10;
 
+        #starting total
         total = successorGameState.getScore()
-        # print "start:", total,
-        x, y = newPos
-        curX, curY  = currentGameState.__dict__["data"].__dict__["agentStates"][0].__dict__["configuration"].__dict__ ["pos"]
-        # print curX, curY
-        # print total,
 
+        #new position of pacman
+        x, y = newPos
+
+        #old position of pacman
+        curX, curY  = currentGameState.__dict__["data"].__dict__["agentStates"][0].__dict__["configuration"].__dict__ ["pos"]
+
+        #go to the food if its the next pos
         if newFood[x][y]:
             total += 200
         else:
+
+            #find closest food
             smallest = 1000;
             for i, each in enumerate(newFood.asList()):
                 mDist = abs(x - each[0]) + abs(y - each[1])
                 if mDist <= smallest:
                     smallest = mDist
-            # print "small: ", smallest,
+
             if(smallest > 1):
                 total += 10 / (smallest)
             else:
                 total += 95
+
+        #choose random food when costs are equal
         total += random.randint(20, 40);
 
-            # print "after path:", total,
-
-
-        # print(newGhostStates[0].__dict__["configuration"].__dict__ .keys())
+        #go through ghost states to find if they are near by
         for i, each in enumerate(newGhostStates):
             gX, gY  = newGhostStates[i].__dict__["configuration"].__dict__ ["pos"]
 
+            #manh. dist.
             mDist = abs(x-gX) + abs(y-gY)
+
+            #if check if they are scared
             if newScaredTimes[i] < mDist + 5:
+
+                #dont do near if they are not scared
                 if mDist < 2:
                     return int(-50000)
 
@@ -119,20 +129,23 @@ class ReflexAgent(Agent):
                     # print ("not factoring ghost")
 
             else:
+                #go after them if they are scared
                 total += 410
 
+        #hunt the pods
         for each in currentGameState.__dict__["data"].__dict__["capsules"]:
             smallest = 1000;
+            #find closest one
             for i, each in enumerate(newFood.asList()):
                 mDist = abs(x - each[0]) + abs(y - each[1])
                 if mDist <= smallest:
                     smallest = mDist
-            # print "small: ", smallest,
+
+            #find closest
             if (smallest > 1):
                 total += 10 / (smallest)
             else:
                 total += 100
-
 
         return total
 
@@ -199,70 +212,112 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns whether or not the game state is a losing state
         """
 
-        "*** YOUR CODE HERE ***"
-
+        #starting level
         level = 1
+
+        #max node val
         maxVal = -1 * sys.maxint
 
+        #state to take
         take = gameState.getLegalActions(self.index)[0]
+
+        #get max of starting actions
         for action in gameState.getLegalActions(self.index):
 
+            #get next node for each action
             next = gameState.generateSuccessor(0, action)
+
+            #if ghost, set index to 1st ghost
             if gameState.getNumAgents() > 1:
                 self.cur = 1
             else:
                 self.cur = 0
 
+            #get max val for this action
             cur = self.minValue(next, level)
+
+            #penalty for stopping
             if action == "Stop":
                 cur -= 1
+            #check if this value is a new max and update choosen action
             if cur > maxVal:
                 maxVal = cur
                 take = action
+
+        #return action with maxVal
         return take
+
+
+
 
     def maxValue(self, state, level):
 
+        #number of agents
         num = state.getNumAgents()
+
+        #check if winning case
         if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
+        #max value
         val = -1 * sys.maxint  # -inf
 
+        #return if at depth limit
         if level == (num * self.depth):
             return self.evaluationFunction(state)
 
+        #go to next level
         level += 1
 
+        #get index of current agent
         temp = self.cur
+
+        #get max of action of current agent
         for action in state.getLegalActions(temp):
+
+            #get state of this action
             next = state.generateSuccessor(temp, action)
+
+            #update agent if >= 1 ghosts
             if state.getNumAgents() > 1:
                 self.cur = 1
             else:
                 self.cur = 0
+
+            #ypdate max val
             val = max(val, self.minValue(next, level))
 
         return val
 
     def minValue(self, state, level):
+
+        #number of agests
         num = state.getNumAgents()
 
+        #check if state is winner
         if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
+        #min value
         val = sys.maxint  # inf
 
+        #check if at max depth
         if level == (num * self.depth):
             return self.evaluationFunction(state)
 
+        #go to next level
         level += 1
 
+        #save index of current agent
         temp = self.cur
+
+        #go through agent's actions
         for action in state.getLegalActions(temp):
 
+            #get state of agent action
             next = state.generateSuccessor(temp, action)
 
+            #check if ghost action, if so find the min and do another min, else, do a min on a max
             if level % num != 0:
                 self.cur = level % num
                 val = min(val, self.minValue(next, level))
@@ -270,6 +325,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 self.cur = 0;
                 val = min(val, self.maxValue(next, level))
 
+        #return min
         return val
 
 
@@ -298,13 +354,10 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        # util.raiseNotDefined()
-
 
         level = 1
         maxVal = -1 * sys.maxint
-        cur = -1 * sys.maxint
+        # cur = -1 * sys.maxint
 
         alpha = -1 * sys.maxint
         beta = sys.maxint
@@ -320,8 +373,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 self.cur = 0
 
             cur = self.minValue(next, level, alpha, beta)
-            # if action == "Stop":
-            #     cur -= 1
+
             if cur > maxVal:
                 maxVal = cur
                 take = action
@@ -409,46 +461,79 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           All ghosts should be modeled as choosing uniformly at random from their
           legal moves.
         """
+        # starting level
         level = 1
+
+        # max node val
         maxVal = -1 * sys.maxint
 
+        # state to take
         take = gameState.getLegalActions(self.index)[0]
+
+        # get max of starting actions
         for action in gameState.getLegalActions(self.index):
 
+            # get next node for each action
             next = gameState.generateSuccessor(0, action)
+
+            # if ghost, set index to 1st ghost
             if gameState.getNumAgents() > 1:
                 self.cur = 1
             else:
                 self.cur = 0
 
+            # get max val for this action
             cur = self.avgValue(next, level)
+
+            # penalty for stopping
             if action == "Stop":
                 cur -= 100
+            # check if this value is a new max and update choosen action
             if cur > maxVal:
                 maxVal = cur
                 take = action
+
+        # return action with maxVal
         return take
+
+
+
 
     def maxValue(self, state, level):
 
+        #number of agents
         num = state.getNumAgents()
+
+        #check if winning case
         if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
+        #max value
         val = -1 * sys.maxint  # -inf
 
+        #return if at depth limit
         if level == (num * self.depth):
             return self.evaluationFunction(state)
 
+        #go to next level
         level += 1
 
+        #get index of current agent
         temp = self.cur
+
+        #get max of action of current agent
         for action in state.getLegalActions(temp):
+
+            #get state of this action
             next = state.generateSuccessor(temp, action)
+
+            #update agent if >= 1 ghosts
             if state.getNumAgents() > 1:
                 self.cur = 1
             else:
                 self.cur = 0
+
+            #ypdate max val
             val = max(val, self.avgValue(next, level))
 
         return val
@@ -484,7 +569,8 @@ def betterEvaluationFunction(currentGameState):
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
       evaluation function (question 5).
 
-      DESCRIPTION: <write something here so we know what you did>
+      DESCRIPTION: We check distance to closest food, amount of food left, pod distance, ghost distance, and scared timer. We give each a different value
+      based on it's impact to the score
     """
 
     current_pos = currentGameState.getPacmanPosition()
