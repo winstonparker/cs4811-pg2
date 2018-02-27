@@ -67,7 +67,7 @@ class ReflexAgent(Agent):
         to create a masterful evaluation function.
         """
         # Useful information you can extract from a GameState (pacman.py)
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
 
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
@@ -300,7 +300,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
 
 
         level = 1
@@ -388,79 +388,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
 
         return val
-
-    #     level = 1
-    #     maxVal = -1 * sys.maxint
-    #
-    #     alpha = -1 * sys.maxint
-    #     beta = sys.maxint
-    #
-    #     take = gameState.getLegalActions(self.index)[0]
-    #     for action in gameState.getLegalActions(self.index):
-    #         next = gameState.generateSuccessor(self.index, action)
-    #
-    #         cur = self.minValue(next, level, alpha, beta)
-    #         if cur > maxVal:
-    #             maxVal = cur
-    #             alpha = cur
-    #             take = action
-    #     return take
-    #
-    # def maxValue(self, state, level, alpha, beta):
-    #
-    #     num = state.getNumAgents()
-    #     if state.isWin() or state.isLose() :
-    #         return self.evaluationFunction(state)
-    #
-    #     val = -1 * sys.maxint  #-inf
-    #
-    #     if level == (num * self.depth):
-    #         return self.evaluationFunction(state)
-    #
-    #     level += 1
-    #
-    #     for action in state.getLegalActions(self.index):
-    #
-    #         next = state.generateSuccessor(self.index, action)
-    #
-    #         val = max(val, self.minValue(next, level, alpha, beta))
-    #
-    #         if val > beta:
-    #             return val
-    #
-    #         alpha = max(alpha, val)
-    #
-    #     return val
-    #
-    #
-    # def minValue(self, state, level, alpha, beta):
-    #
-    #     num = state.getNumAgents()
-    #     if state.isWin() or state.isLose() :
-    #         return self.evaluationFunction(state)
-    #
-    #     val = sys.maxint  # inf
-    #
-    #     if level == (num * self.depth):
-    #         return self.evaluationFunction(state)
-    #
-    #     level += 1
-    #
-    #
-    #     for action in state.getLegalActions(self.index):
-    #         next = state.generateSuccessor(self.index, action)
-    #         if level % num != 0:
-    #             val = min(val, self.minValue(next, level, alpha, beta))
-    #         else:
-    #             val = min(val, self.maxValue(next, level, alpha, beta))
-    #
-            # if val < alpha:
-            #     return val
-            #
-            # beta = min(beta, val)
-    #
-    #     return val
-
 
 
         # util.raiseNotDefined()
@@ -616,11 +543,11 @@ def betterEvaluationFunction(currentGameState):
                 reg_ghost_distance = t_reg_ghost_distance
 
     total = currentGameState.getScore() #base score
-    total += (-3 * food_distance) #travel to food
+    total += (3 * food_distance) #travel to food
     total += (-5 * food_left) #prioritize collecting food
     total += (50 * capsules_left) #pick it up
     total += (2 * vul_ghost_distance) #chase scared ghosts
-    total += (-10 * reg_ghost_distance)  #dont want to go there
+    total += (-10 * (reg_ghost_distance / 100) + 1)  #dont want to go there
     return total
 
 
