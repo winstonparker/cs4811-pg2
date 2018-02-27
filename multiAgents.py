@@ -67,10 +67,6 @@ class ReflexAgent(Agent):
         to create a masterful evaluation function.
         """
         # Useful information you can extract from a GameState (pacman.py)
-<<<<<<< HEAD
-        # util.raiseNotDefined()
-=======
->>>>>>> 9e5cef5e78ff99df62bbf1c961341be57a76b029
 
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
@@ -308,12 +304,14 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         level = 1
         maxVal = -1 * sys.maxint
+        cur = -1 * sys.maxint
 
         alpha = -1 * sys.maxint
         beta = sys.maxint
 
         take = gameState.getLegalActions(self.index)[0]
         for action in gameState.getLegalActions(self.index):
+
 
             next = gameState.generateSuccessor(0, action)
             if gameState.getNumAgents() > 1:
@@ -322,17 +320,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 self.cur = 0
 
             cur = self.minValue(next, level, alpha, beta)
-            if action == "Stop":
-                cur -= 1
+            # if action == "Stop":
+            #     cur -= 1
             if cur > maxVal:
                 maxVal = cur
                 take = action
 
             if cur > beta:
-                print "pruned root?"
                 return take
 
-            alpha = max(alpha, maxVal)
+            alpha = max(alpha, cur)
 
         return take
 
@@ -351,6 +348,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         temp = self.cur
         for action in state.getLegalActions(temp):
+
+
             next = state.generateSuccessor(temp, action)
             if state.getNumAgents() > 1:
                 self.cur = 1
@@ -490,10 +489,11 @@ def betterEvaluationFunction(currentGameState):
 
     current_pos = currentGameState.getPacmanPosition()
 
-    #nubmer of foods left
+    #get food and capsules
     food_list = currentGameState.getFood().asList()
     cap_list = currentGameState.getCapsules()
 
+    #nubmer of foods left
     food_left = len(food_list)
 
     #number of capsules left
@@ -536,13 +536,14 @@ def betterEvaluationFunction(currentGameState):
     for ghost in currentGameState.getGhostStates():
         #found a scared ghost
         if ghost.scaredTimer:
-            #get the distance to that scared ghost and check if it is closer than already found ghost
+            #get the distance to that scared ghost and check if it is closer than already found scared ghost
             t_vul_ghost_distance = util.manhattanDistance(current_pos, ghost.getPosition())
             if t_vul_ghost_distance < vul_ghost_distance:
                 vul_ghost_distance = t_vul_ghost_distance
 
         #ghost is not scared
         else:
+            #get the distance to that normal ghost and check if it is closer than already found ghost
             t_reg_ghost_distance = util.manhattanDistance(current_pos, ghost.getPosition())
             if t_reg_ghost_distance < reg_ghost_distance:
                 reg_ghost_distance = t_reg_ghost_distance
