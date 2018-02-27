@@ -319,16 +319,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             else:
                 self.cur = 0
 
-            cur = self.minValue(next, level, alpha, beta)
-            # if action == "Stop":
-            #     cur -= 1
+            cur = self.minValue(next, level, alpha, beta)\
             if cur > maxVal:
                 maxVal = cur
                 take = action
 
+            #is there a conflict? if so prune!
             if cur > beta:
                 return take
 
+            #set alpha
             alpha = max(alpha, cur)
 
         return take
@@ -357,9 +357,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 self.cur = 0
             val = max(val, self.minValue(next, level, alpha, beta))
 
+            #is there a conflict? if so prune!
             if val > beta:
                 return val
 
+            #set AlphaBetaAgent
             alpha = max(alpha, val)
 
         return val
@@ -389,9 +391,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 self.cur = 0;
                 val = min(val, self.maxValue(next, level, alpha, beta))
 
+            #is there a conflict? if so prune!
             if val < alpha:
                 return val
 
+            #set beta
             beta = min(beta, val)
 
 
@@ -548,8 +552,9 @@ def betterEvaluationFunction(currentGameState):
             if t_reg_ghost_distance < reg_ghost_distance:
                 reg_ghost_distance = t_reg_ghost_distance
 
+    #add weights too all of these values to make pacman prioritize different states
     total = currentGameState.getScore() #base score
-    total += (2 / food_distance) #travel to food
+    total += (2 / food_distance) #travel to food (prioritize closer food)
     total += (7 * food_left) #prioritize collecting food
     total += (50 * capsules_left) #pick it up
     total += (2 * vul_ghost_distance) #chase scared ghosts
