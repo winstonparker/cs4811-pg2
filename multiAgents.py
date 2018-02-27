@@ -67,7 +67,10 @@ class ReflexAgent(Agent):
         to create a masterful evaluation function.
         """
         # Useful information you can extract from a GameState (pacman.py)
+<<<<<<< HEAD
         # util.raiseNotDefined()
+=======
+>>>>>>> 9e5cef5e78ff99df62bbf1c961341be57a76b029
 
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
@@ -395,9 +398,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         return val
 
-
-        # util.raiseNotDefined()
-
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
@@ -487,19 +487,13 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
-    # util.raiseNotDefined()
-
-    # Useful information you can extract from a GameState (pacman.py)
-    # successorGameState = currentGameState
-    # newPos = currentGameState.getPacmanPosition()
-    # newFood = currentGameState.getFood()
-    # newGhostStates = currentGameState.getGhostStates()
-    # newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
     current_pos = currentGameState.getPacmanPosition()
 
     #nubmer of foods left
     food_list = currentGameState.getFood().asList()
+    cap_list = currentGameState.getCapsules()
+
     food_left = len(food_list)
 
     #number of capsules left
@@ -507,10 +501,15 @@ def betterEvaluationFunction(currentGameState):
 
     #distance to closest food
     food_distance = sys.maxint
+    for cur_cap in cap_list:
+        tf_distance = util.manhattanDistance(current_pos, cur_cap)
+        if tf_distance < food_distance:
+            food_distance = tf_distance
     for cur_food in food_list:
         tf_distance = util.manhattanDistance(current_pos, cur_food)
         if tf_distance < food_distance:
             food_distance = tf_distance
+
 
     scared_ghosts = 0
     normal_ghosts = 0
@@ -549,61 +548,12 @@ def betterEvaluationFunction(currentGameState):
                 reg_ghost_distance = t_reg_ghost_distance
 
     total = currentGameState.getScore() #base score
-    total += (3 * food_distance) #travel to food
-    total += (-5 * food_left) #prioritize collecting food
+    total += (2 / food_distance) #travel to food
+    total += (-7 * food_left) #prioritize collecting food
     total += (50 * capsules_left) #pick it up
     total += (2 * vul_ghost_distance) #chase scared ghosts
     total += (-10 * (reg_ghost_distance / 100) + 1)  #dont want to go there
     return total
-
-
-    # total = successorGameState.getScore()
-    # x, y = newPos
-    #
-    # if newFood[x][y]:
-    #     total += 200
-    # else:
-    #     smallest = 1000;
-    #     for i, each in enumerate(newFood.asList()):
-    #         mDist = abs(x - each[0]) + abs(y - each[1])
-    #         if mDist <= smallest:
-    #             smallest = mDist
-    #     # print "small: ", smallest,
-    #     if (smallest > 1):
-    #         total += 10 / (smallest)
-    #     else:
-    #         total += 95
-    # total += random.randint(20, 40);
-    #
-    # for i, each in enumerate(newGhostStates):
-    #     gX, gY = newGhostStates[i].__dict__["configuration"].__dict__["pos"]
-    #
-    #     mDist = abs(x - gX) + abs(y - gY)
-    #     if newScaredTimes[i] < mDist + 5:
-    #         if mDist < 2:
-    #             return int(-50000)
-    #         elif mDist < 3:
-    #             total = (-2000 / (mDist))
-    #
-    #
-    #     else:
-    #         total += 410
-    #
-    # for each in currentGameState.__dict__["data"].__dict__["capsules"]:
-    #     smallest = 1000;
-    #     for i, each in enumerate(newFood.asList()):
-    #         mDist = abs(x - each[0]) + abs(y - each[1])
-    #         if mDist <= smallest:
-    #             smallest = mDist
-    #     # print "small: ", smallest,
-    #     if (smallest > 1):
-    #         total += 10 / (smallest)
-    #     else:
-    #         total += 100
-
-    # #print total
-    # return total
-
 
 # Abbreviation
 better = betterEvaluationFunction
