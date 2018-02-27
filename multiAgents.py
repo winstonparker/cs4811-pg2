@@ -354,26 +354,35 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
-
+        #starting level
         level = 1
-        maxVal = -1 * sys.maxint
-        # cur = -1 * sys.maxint
 
+        #max node val
+        maxVal = -1 * sys.maxint
+
+        #alpha and beta values
         alpha = -1 * sys.maxint
         beta = sys.maxint
 
+        #state to take
         take = gameState.getLegalActions(self.index)[0]
+
+        #get max of starting actions
         for action in gameState.getLegalActions(self.index):
 
-
+            #get next node for each action
             next = gameState.generateSuccessor(0, action)
+
+            #if ghost, set index to 1st ghost
             if gameState.getNumAgents() > 1:
                 self.cur = 1
             else:
                 self.cur = 0
 
+            #get max value for this action
             cur = self.minValue(next, level, alpha, beta)
 
+            #check if this value is a new max and update choosen action
             if cur > maxVal:
                 maxVal = cur
                 take = action
@@ -385,26 +394,38 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             #set alpha
             alpha = max(alpha, cur)
 
+        #return action with max val
         return take
 
     def maxValue(self, state, level, alpha, beta):
 
+        #number of agents
         num = state.getNumAgents()
+
+        #check winning case
         if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
+        #max val
         val = -1 * sys.maxint  # -inf
 
+        #at max depth
         if level == (num * self.depth):
             return self.evaluationFunction(state)
 
+        #go to next level
         level += 1
 
+        #get index of current agent
         temp = self.cur
+
+        #get max of action of current agent
         for action in state.getLegalActions(temp):
 
-
+            #get state of this action
             next = state.generateSuccessor(temp, action)
+
+            #update agent if >= 1 ghosts
             if state.getNumAgents() > 1:
                 self.cur = 1
             else:
@@ -415,29 +436,41 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             if val > beta:
                 return val
 
-            #set AlphaBetaAgent
+            #set alpha
             alpha = max(alpha, val)
 
+        #return max val
         return val
 
     def minValue(self, state, level, alpha, beta):
+
+        #number of agents
         num = state.getNumAgents()
 
+        #check winning case
         if state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
+        #min val
         val = sys.maxint  # inf
 
+        #max depth
         if level == (num * self.depth):
             return self.evaluationFunction(state)
 
+        #goto next level
         level += 1
 
+        #get index of current agent
         temp = self.cur
+
+        #get max of action of current agent
         for action in state.getLegalActions(temp):
 
+            #get state of this action
             next = state.generateSuccessor(temp, action)
 
+            #update agent if >= 1 ghosts
             if level % num != 0:
                 self.cur = level % num
                 val = min(val, self.minValue(next, level, alpha, beta))
@@ -452,7 +485,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             #set beta
             beta = min(beta, val)
 
-
+        #return min value
         return val
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -602,7 +635,7 @@ def betterEvaluationFunction(currentGameState):
         if tf_distance < food_distance:
             food_distance = tf_distance
 
-
+    #no scared ghosts or normal ghosts
     scared_ghosts = 0
     normal_ghosts = 0
 
