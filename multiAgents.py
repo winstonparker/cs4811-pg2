@@ -323,8 +323,14 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 cur -= 1
             if cur > maxVal:
                 maxVal = cur
-                alpha = cur
                 take = action
+
+            if cur > beta:
+                print "pruned root?"
+                return take
+
+            alpha = max(alpha, maxVal)
+
         return take
 
     def maxValue(self, state, level, alpha, beta):
