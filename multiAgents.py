@@ -373,7 +373,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 self.cur = 0
 
             cur = self.minValue(next, level, alpha, beta)
-
+           
             if cur > maxVal:
                 maxVal = cur
                 take = action
