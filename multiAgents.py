@@ -524,15 +524,12 @@ def betterEvaluationFunction(currentGameState):
                 reg_ghost_distance = t_reg_ghost_distance
 
     total = currentGameState.getScore() #base score
-    total += (1 / food_distance) #travel to food
-    total += (-5 * food_left) #prioritize collecting food
+    total += (2 / food_distance) #travel to food
+    total += (-7 * food_left) #prioritize collecting food
     total += (50 * capsules_left) #pick it up
     total += (2 * vul_ghost_distance) #chase scared ghosts
     total += (-10 * reg_ghost_distance)  #dont want to go there
     return total
-
-
-
 
 # Abbreviation
 better = betterEvaluationFunction
